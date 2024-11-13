@@ -25,13 +25,14 @@ for e in range(epochs):
         for layer in network:
             output = layer.forward(output)
 
-        # error
+        # error calculation
         error += mse(y, output)
 
-        # backward
+        # backward propagation
         grad = mse_prime(y, output)
         for layer in reversed(network):
             grad = layer.backward(grad, learning_rate)
 
-    error /= len(x)
-    print(f'epoch {e + 1}/{epochs}, error={error}')
+    error /= len(X)
+    if (e + 1) % 100 == 0:
+        print(f'Epoch {e + 1}/{epochs}, Error={error:.6f}')
