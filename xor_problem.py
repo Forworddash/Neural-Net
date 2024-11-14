@@ -3,6 +3,7 @@ from hyperbolic_tangent import Tanh
 from mean_squared_error import mse, mse_prime
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 
 # XOR dataset
@@ -17,8 +18,28 @@ network = [
     Tanh()
 ]
 
+
 epochs = 100000
 learning_rate = 0.1
+
+# Functions to save and load the model
+def save_model(network, filename='xor_model.pkl'):
+    with open(filename, 'wb') as f:
+        pickle.dump([layer.weights for layer in network if hasattr(layer, 'weights')], f)
+    print(f'Model saved to {filename}')
+
+def load_model(network, filename='xor_model.pkl'):
+    with open(filename, 'rb') as f:
+        saved_weights = pickle.load(f)
+    for layer, weights in zip([l for l in network if hasattr(l, 'weights')], saved_weights):
+        layer.weights = weights
+    print(f'Model loaded from {filename}')
+
+# Check if you want to load a pre-trained model
+load_existing_model = False
+if load_existing_model:
+    load_model(network)
+
 
 # training
 for e in range(epochs):
@@ -41,6 +62,8 @@ for e in range(epochs):
     if (e + 1) % 1000 == 0:
         print(f'Epoch {e + 1}/{epochs}, Error={error:.6f}')
 
+# Save the trained model
+save_model(network)
 
 # Visualizing the Decision Boundary
 x1 = np.linspace(0, 1, 100)
