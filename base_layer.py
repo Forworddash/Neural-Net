@@ -1,12 +1,14 @@
-class Layer:
+from abc import ABC, abstractmethod
+
+class Layer(ABC):
     def __init__(self):
         self.input = None
         self.output = None
 
+    @abstractmethod
     def forward(self, input):
-        # TODO: Return output
         pass
 
+    @abstractmethod
     def backward(self, output_gradient, learning_rate):
-        # TODO: udpate parameters and return input gradient
         pass
