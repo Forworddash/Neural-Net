@@ -4,7 +4,7 @@ from mean_squared_error import mse, mse_prime
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-
+from mpl_toolkits.mplot3d import Axes3D
 
 # XOR dataset
 X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
@@ -19,7 +19,7 @@ network = [
 ]
 
 
-epochs = 100000
+epochs = 10000
 learning_rate = 0.1
 
 # Functions to save and load the model
@@ -60,17 +60,18 @@ for e in range(epochs):
             grad = layer.backward(grad, learning_rate)
 
     error /= len(X)
-    if (e + 1) % 1000 == 0:
+    if (e + 1) % 100 == 0:
         print(f'Epoch {e + 1}/{epochs}, Error={error:.6f}')
 
 # Save the trained model
 save_model(network)
 
-# Visualizing the Decision Boundary
+# Generate grid points for the decision boundary
 x1 = np.linspace(0, 1, 100)
 x2 = np.linspace(0, 1, 100)
 grid = np.array([[x1_, x2_] for x1_ in x1 for x2_ in x2]).reshape(-1, 2, 1)
 
+# Compute predictions for grid points
 predictions = []
 for point in grid: 
     output = point
@@ -80,10 +81,24 @@ for point in grid:
 
 predictions = np.array(predictions).reshape(100, 100)
 
-plt.figure(figsize=(8, 6))
-plt.contourf(x1, x2, predictions, levels=50, cmap='coolwarm', alpha=0.8)
-plt.scatter(X[:, 0].flatten(), X[:, 1].flatten(), c=Y.flatten(), edgecolors='k', cmap='coolwarm', s=100)
-plt.title('XOR Decision Boundary')
-plt.xlabel('Input 1')
-plt.ylabel('Input 2')
+# 3D visualization
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Create meshgrid for inputs x12, x2
+X1, X2 = np.meshgrid(x1, x2)
+
+# Plot decision boundary surface
+ax.plot_surface(X1, X2, predictions, cmap='coolwarm', alpha=0.8)
+
+# Plot XOR data points
+for i, (input_point, label) in enumerate(zip(X, Y)):
+    ax.scatter(input_point[0], input_point[1], label[0], color='k', s=100, edgecolor='w', label=f'Point {i+1}')
+
+# Set labels
+ax.set_title('XOR Problem: 3D Decision Boundary', fontsize=14)
+ax.set_xlabel('Input 1')
+ax.set_ylabel('Input 2')
+ax.set_zlabel('Output')
+
 plt.show()
