@@ -8,8 +8,6 @@ class Activation(Layer):
         self.activation_prime = activation_prime
 
     def forward(self, input):
-        assert input.shape[0] == self.weights.shape[1], \
-            f"Input shape mismatch: expected {self.weights.shape[1]} but got {input.shape[0]}"
         self.input = input
         return self.activation(self.input)
 

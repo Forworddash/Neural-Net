@@ -25,14 +25,15 @@ learning_rate = 0.1
 # Functions to save and load the model
 def save_model(network, filename='xor_model.pkl'):
     with open(filename, 'wb') as f:
-        pickle.dump([layer.weights for layer in network if hasattr(layer, 'weights')], f)
+        pickle.dump([(layer.weights, layer.bias) for layer in network if hasattr(layer, 'weights')], f)
     print(f'Model saved to {filename}')
 
 def load_model(network, filename='xor_model.pkl'):
     with open(filename, 'rb') as f:
-        saved_weights = pickle.load(f)
-    for layer, weights in zip([l for l in network if hasattr(l, 'weights')], saved_weights):
+        saved_params = pickle.load(f)
+    for layer, (weights, bias) in zip([l for l in network if hasattr(l, 'weights')], saved_params):
         layer.weights = weights
+        layer.bias = bias
     print(f'Model loaded from {filename}')
 
 # Check if you want to load a pre-trained model
@@ -41,19 +42,19 @@ if load_existing_model:
     load_model(network)
 
 
-# training
+# Training
 for e in range(epochs):
     error = 0
     for x, y in zip(X, Y):
-        # forward
+        # Forward
         output = x
         for layer in network:
             output = layer.forward(output)
 
-        # error calculation
+        # Error calculation
         error += mse(y, output)
 
-        # backward propagation
+        # Backward propagation
         grad = mse_prime(y, output)
         for layer in reversed(network):
             grad = layer.backward(grad, learning_rate)
@@ -73,15 +74,15 @@ grid = np.array([[x1_, x2_] for x1_ in x1 for x2_ in x2]).reshape(-1, 2, 1)
 predictions = []
 for point in grid: 
     output = point
-    for latyer in network:
-        output = latyer.forward(output)
+    for layer in network:
+        output = layer.forward(output)
     predictions.append(output.flatten())
 
 predictions = np.array(predictions).reshape(100, 100)
 
 plt.figure(figsize=(8, 6))
 plt.contourf(x1, x2, predictions, levels=50, cmap='coolwarm', alpha=0.8)
-plt.scatter(X[:, 0], X[:, 1], c=Y.flatten(), edgecolors='k', cmap='coolwarm', s=100)
+plt.scatter(X[:, 0].flatten(), X[:, 1].flatten(), c=Y.flatten(), edgecolors='k', cmap='coolwarm', s=100)
 plt.title('XOR Decision Boundary')
 plt.xlabel('Input 1')
 plt.ylabel('Input 2')
