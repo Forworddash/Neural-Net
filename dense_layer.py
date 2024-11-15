@@ -8,6 +8,8 @@ class Dense(Layer):
         self.bias = np.random.randn(output_size, 1)
 
     def forward(self, input):
+        assert input.shape[0] == self.weights.shape[1], \
+            f"Input shape mismatch: expected {self.weights.shape[1]} but got {input.shape[0]}"
         self.input = input
         return np.dot(self.weights, self.input) + self.bias
     
